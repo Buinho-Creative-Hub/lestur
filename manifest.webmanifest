@@ -1,0 +1,18 @@
+{
+  "name": "Lestur — les saman",
+  "short_name": "Lestur",
+  "description": "Reading together. A gentle Buinho tool for a grown-up and a child to read Icelandic words side by side. No scores, never wrong.",
+  "lang": "is",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3efe6",
+  "theme_color": "#22282b",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
