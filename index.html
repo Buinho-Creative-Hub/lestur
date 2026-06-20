@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lestur · les saman</title>
+<meta name="description" content="Lestur — reading together. A gentle Buinho tool for a grown-up and a child to read Icelandic words side by side. No scores, never wrong.">
+<meta name="theme-color" content="#22282b">
+<link rel="manifest" href="manifest.webmanifest">
+<!-- iOS: add to home screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lestur">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Inter:wght@400;500;600&display=swap');
+  :root{
+    --basalt:#22282b;--moss:#5b7c5a;--moss-deep:#3f5b3e;--glacier:#cfe3e8;--glacier-deep:#a7cdd6;
+    --cream:#f3efe6;--paper:#fbf9f3;--ember:#e8703a;--ink:#2b2f2c;--muted:#7c857d;--line:#e0dccf;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--cream);color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  #root{max-width:760px;margin:0 auto;padding:24px 20px 64px;min-height:100vh}
+  .display{font-family:'Fraunces',Georgia,serif}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+  .brand{display:flex;align-items:baseline;gap:10px}
+  .brand h1{font-family:'Fraunces';font-weight:900;font-size:30px;letter-spacing:-.5px;color:var(--basalt)}
+  .brand .sub{font-size:12px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+  .collection{display:flex;align-items:center;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--moss-deep)}
+  .collection b{font-family:'Fraunces';font-size:15px}
+  .ribbon{background:linear-gradient(180deg,#2c343a,#22282b);color:#dfe6e3;border-radius:14px;padding:12px 16px;font-size:13.5px;line-height:1.5;margin:14px 0 22px;display:flex;gap:12px;align-items:flex-start}
+  .ribbon .tag{flex:none;background:var(--ember);color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-top:1px}
+  .ribbon b{color:#fff}
+  .stage{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:30px 26px 26px;box-shadow:0 1px 0 #fff inset, 0 14px 40px -28px rgba(34,40,43,.5)}
+  .phase-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--moss);font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+  .phase-label .dot{width:7px;height:7px;border-radius:50%;background:var(--moss)}
+  .wordrow{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:8px 0 18px}
+  .tile{font-family:'Fraunces';font-weight:600;font-size:clamp(40px,11vw,76px);line-height:1;background:var(--cream);border:2px solid var(--line);border-radius:16px;padding:14px 6px;min-width:clamp(58px,15vw,92px);text-align:center;color:var(--basalt);cursor:pointer;user-select:none;position:relative;transition:transform .12s ease,background .12s ease,border-color .12s ease,color .12s ease}
+  .tile:hover{transform:translateY(-3px)}
+  .tile.lit{background:var(--glacier);border-color:var(--glacier-deep)}
+  .tile.special{color:var(--ember)}
+  .tile.done{background:var(--moss);border-color:var(--moss-deep);color:#fff}
+  .tile .syl{position:absolute;left:0;right:0;bottom:6px;font-family:'Inter';font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+  .tile.done .syl{color:#dfeede}
+  .meaning{display:flex;align-items:center;gap:16px;justify-content:center;margin:6px 0 22px}
+  .pic{width:96px;height:96px;border-radius:18px;background:var(--glacier);display:flex;align-items:center;justify-content:center;flex:none;border:1px solid var(--glacier-deep)}
+  .pic svg{width:64px;height:64px}
+  .gloss{font-size:14px;color:var(--muted);max-width:240px}
+  .gloss .en{font-family:'Fraunces';font-size:22px;color:var(--ink);font-weight:600;display:block;margin-bottom:2px}
+  .controls{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+  .btn{font-family:'Inter';font-weight:600;font-size:15px;border:none;border-radius:13px;padding:14px 22px;cursor:pointer;transition:transform .1s ease,filter .15s ease;display:inline-flex;align-items:center;gap:9px}
+  .btn:active{transform:scale(.97)}
+  .btn-hear{background:var(--basalt);color:#fff}
+  .btn-hear:hover{filter:brightness(1.15)}
+  .btn-try{background:var(--ember);color:#fff}
+  .btn-try:hover{filter:brightness(1.05)}
+  .btn-ghost{background:transparent;color:var(--moss-deep);border:1.5px solid var(--moss)}
+  .btn-ghost:hover{background:#eef3ed}
+  .btn svg{width:18px;height:18px}
+  .trace-hint{text-align:center;font-size:13.5px;color:var(--muted);margin-top:14px;min-height:20px}
+  .garden{margin-top:26px}
+  .garden h3{font-family:'Fraunces';font-size:15px;color:var(--basalt);margin-bottom:4px;font-weight:600}
+  .garden p{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .seed{width:40px;height:40px;border-radius:12px;background:var(--paper);border:1px dashed var(--line);display:flex;align-items:center;justify-content:center}
+  .seed.grown{background:var(--moss);border-style:solid;border-color:var(--moss-deep)}
+  .seed svg{width:22px;height:22px}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:var(--moss-deep);color:#fff;font-family:'Fraunces';font-weight:600;font-size:17px;padding:14px 26px;border-radius:14px;box-shadow:0 16px 40px -16px rgba(0,0,0,.45);transition:opacity .25s ease,transform .25s ease;z-index:50;display:flex;align-items:center;gap:10px}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast svg{width:22px;height:22px}
+  .footnote{font-size:11.5px;color:var(--muted);text-align:center;margin-top:30px;line-height:1.6}
+  .footnote b{color:var(--moss-deep)}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="top">
+    <div class="brand"><h1 class="display">Lestur</h1><span class="sub">les saman</span></div>
+    <div class="collection">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c0-3 2-5 6-5 0 3-2 5-6 5z"/><path d="M12 14c0-2.5-1.8-4.5-5-4.5 0 2.7 1.8 4.5 5 4.5z"/></svg>
+      <span>collected</span><b id="count">0</b>
+    </div>
+  </div>
+
+  <div class="ribbon">
+    <span class="tag">for the grown-up</span>
+    <div>You're the guide — the screen is just the material. <b>Sit beside her</b>, tap the letters together, say each sound aloud. There are no wrong answers here and no score she can see. When a word feels hard, press <b>Another go</b> — never "wrong", always "again, slower".</div>
+  </div>
+
+  <div class="stage">
+    <div class="phase-label"><span class="dot"></span><span id="phaseLabel">Sound it out</span></div>
+    <div class="wordrow" id="wordrow"></div>
+    <div class="meaning">
+      <div class="pic" id="pic"></div>
+      <div class="gloss"><span class="en" id="en">fish</span>the word means “<span id="en2">fish</span>” — point to the picture as you say it</div>
+    </div>
+    <div class="controls" id="controls"></div>
+    <div class="trace-hint" id="hint">Tap a letter to hear its sound. No rush.</div>
+  </div>
+
+  <div class="garden">
+    <h3 class="display">Your garden</h3>
+    <p>Every word you read together grows one plant. No levels, no scores — just a garden that fills up.</p>
+    <div class="row" id="garden"></div>
+  </div>
+
+  <div class="footnote">
+    Prototype · Icelandic word bank is a small real sample (fiskur, hestur, kind, sól).<br>
+    <b>v2 with Albano:</b> native Icelandic voice, AI-generated words &amp; micro-stories tuned to the child's interests, optional offline run on a Raspberry Pi.
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const ICONS = {
+  speaker:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>',
+  hand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2a8 8 0 0 1-7-4l-2.5-4a2 2 0 0 1 3.5-2L8 14"/></svg>',
+  again:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.8 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg>',
+  sprout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-8"/><path d="M12 13c0-3 2-5 6-5 0 3-2 5-6 5z"/><path d="M12 14c0-2.5-1.8-4.5-5-4.5 0 2.7 1.8 4.5 5 4.5z"/></svg>',
+  fish:'<svg viewBox="0 0 64 64" fill="none" stroke="#3f5b3e" stroke-width="3" stroke-linejoin="round"><path d="M8 32c8-12 28-12 38 0-10 12-30 12-38 0z"/><path d="M46 32l10-7v14z"/><circle cx="20" cy="29" r="2.4" fill="#3f5b3e" stroke="none"/></svg>',
+  horse:'<svg viewBox="0 0 64 64" fill="none" stroke="#3f5b3e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 52V36c0-8 6-14 14-14h6l6-8 2 10c4 2 6 6 6 12"/><path d="M18 36l-6-4 4-8"/><path d="M24 52v-8M40 52v-8"/></svg>',
+  sheep:'<svg viewBox="0 0 64 64" fill="none" stroke="#3f5b3e" stroke-width="3" stroke-linejoin="round"><circle cx="30" cy="30" r="14"/><circle cx="44" cy="30" r="7"/><path d="M22 44v6M34 44v6"/><circle cx="46" cy="28" r="1.6" fill="#3f5b3e" stroke="none"/></svg>',
+  sun:'<svg viewBox="0 0 64 64" fill="none" stroke="#e8703a" stroke-width="3" stroke-linecap="round"><circle cx="32" cy="32" r="11"/><path d="M32 6v8M32 50v8M6 32h8M50 32h8M14 14l6 6M44 44l6 6M50 14l-6 6M20 44l-6 6"/></svg>'
+};
+
+const WORDS = [
+  { is:"fiskur", en:"fish",  syl:["fis","kur"], pic:"fish",  special:[] },
+  { is:"hestur", en:"horse", syl:["hes","tur"], pic:"horse", special:[] },
+  { is:"kind",   en:"sheep", syl:["kind"],      pic:"sheep", special:[] },
+  { is:"sól",    en:"sun",   syl:["sól"],       pic:"sun",   special:["ó"] }
+];
+const PRAISE = ["Frábært!","Vel gert!","Flott!","Þú last það!"];
+
+// Garden progress persists on THIS device only (localStorage) — no cloud, no minor's data leaves the phone.
+function loadGrown(){ try{ const v=parseInt(localStorage.getItem("lestur_garden")||"0",10); return isNaN(v)?0:Math.min(Math.max(v,0),8); }catch(e){ return 0; } }
+function saveGrown(){ try{ localStorage.setItem("lestur_garden", String(grown)); }catch(e){} }
+
+let wi=0, phase="read", lit=[], grown=loadGrown();
+
+function speak(text, rate){
+  rate = rate||0.85;
+  try{
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "is-IS"; u.rate = rate;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function render(){
+  const w = WORDS[wi];
+  document.getElementById("en").textContent = w.en;
+  document.getElementById("en2").textContent = w.en;
+  document.getElementById("pic").innerHTML = ICONS[w.pic];
+  document.getElementById("count").textContent = grown;
+
+  const lbl = {read:"Sound it out", trace:"Trace & say", done:"You read it together"};
+  document.getElementById("phaseLabel").textContent = lbl[phase];
+
+  // tiles
+  const row = document.getElementById("wordrow");
+  row.innerHTML = "";
+  const letters = [...w.is];
+  let acc=0;
+  letters.forEach((ch,i)=>{
+    const isSpecial = w.special.includes(ch);
+    const div = document.createElement("div");
+    let cls = "tile";
+    if(lit.includes(i) && phase!=="done") cls+=" lit";
+    if(isSpecial) cls+=" special";
+    if(phase==="done") cls+=" done";
+    div.className = cls;
+    div.setAttribute("role","button");
+    div.tabIndex = 0;
+    let sylLabel = null, a=0;
+    for(const s of w.syl){ if(i===a){sylLabel=s;} a+=s.length; }
+    div.innerHTML = ch + (sylLabel?('<span class="syl">'+sylLabel+'</span>'):"");
+    if(phase!=="done"){
+      div.onclick = ()=>tapTile(i,ch);
+      div.onkeydown = (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); tapTile(i,ch); } };
+    }
+    row.appendChild(div);
+  });
+
+  // controls
+  const c = document.getElementById("controls");
+  c.innerHTML = "";
+  if(phase==="read"){
+    c.appendChild(mkBtn("btn-hear", ICONS.speaker+" Hear the word", hearWord));
+    c.appendChild(mkBtn("btn-try",  ICONS.hand+" Trace it", startTrace));
+  } else if(phase==="trace"){
+    c.appendChild(mkBtn("btn-hear", ICONS.speaker+" Hear again", hearWord));
+    c.appendChild(mkBtn("btn-try",  ICONS.star+" We read it!", win));
+    c.appendChild(mkBtn("btn-ghost",ICONS.again+" Another go", anotherGo));
+  } else {
+    c.appendChild(mkBtn("btn-try",  ICONS.sprout+" Next word", next));
+    c.appendChild(mkBtn("btn-ghost",ICONS.again+" Read it again", anotherGo));
+  }
+
+  renderGarden();
+}
+
+function mkBtn(cls, html, fn){
+  const b = document.createElement("button");
+  b.className = "btn "+cls;
+  b.innerHTML = html;
+  b.onclick = fn;
+  return b;
+}
+
+function renderGarden(){
+  const g = document.getElementById("garden");
+  g.innerHTML = "";
+  for(let i=0;i<8;i++){
+    const s = document.createElement("div");
+    s.className = "seed" + (i<grown?" grown":"");
+    if(i<grown) s.innerHTML = '<span style="color:#fff">'+ICONS.sprout+'</span>';
+    g.appendChild(s);
+  }
+}
+
+function setHint(t){ document.getElementById("hint").textContent = t; }
+
+function tapTile(i,ch){
+  speak(ch,0.7);
+  if(!lit.includes(i)) lit.push(i);
+  setHint("Good. Now another — or hear the whole word.");
+  render();
+}
+function hearWord(){ speak(WORDS[wi].is); setHint("Listen, then say it together."); }
+function startTrace(){ phase="trace"; setHint("Trace each letter with your finger as you say it."); render(); }
+function win(){
+  phase="done";
+  const p = PRAISE[Math.floor(Math.random()*PRAISE.length)];
+  grown = Math.min(grown+1,8);
+  saveGrown();
+  showToast(p);
+  speak(p,0.9);
+  render();
+}
+function next(){ wi=(wi+1)%WORDS.length; phase="read"; lit=[]; setHint("Tap a letter to hear its sound. No rush."); render(); }
+function anotherGo(){ phase="read"; lit=[]; setHint("No problem — let's take it slower together."); render(); }
+
+function showToast(text){
+  const t = document.getElementById("toast");
+  t.innerHTML = ICONS.star + text;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+render();
+</script>
+<script>
+// Service worker — makes Lestur installable and work offline after first open.
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("service-worker.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
+
